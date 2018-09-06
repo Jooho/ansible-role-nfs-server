@@ -9,11 +9,6 @@
 - name: Check if nfs-utils has been installed
   yum: pkg=libsemanage-python 
 
-- name: Check if selinux is disabled
-  shell: getenforce
-  register: selinux_state
-  become: yes
-     
 - name: Create nfs mount point folder
   file: path={{nfs_mount_point}} state=directory force=false
   become: yes
@@ -63,7 +58,7 @@
 
 - name: set selinux virt_use_nfs to 1 
   seboolean: name=virt_use_nfs state=yes persistent=yes
-  when: '{{selinux_state.stdout}} != Disabled'
+  when: hostvars[inventory_hostname]['ansible_selinux']['status'] != 'disabled'
   become: yes
 
 - name: create nfs mount point folder
@@ -90,22 +85,24 @@
 - name: set selinux virt_use_nfs to 1 
   seboolean: name=virt_use_nfs state=yes persistent=yes
   become: yes
-  when: '{{selinux_state.stdout}} != Disabled'
+  when: hostvars[inventory_hostname]['ansible_selinux']['status'] != 'disabled'
 
 #iptables will be supported since 2.0
 - name: add iptable rule for nfs
   iptables: chain=INPUT protocol=tcp match=tcp destination_port=2049 jump=ACCEPT 
+  ignore_errors: yes
   become: yes
 
-- name: add iptable rule for nfs
-  shell: "iptables -I INPUT 1 -p tcp --dport 2049 -j ACCEPT"
+  #- name: add iptable rule for nfs
+  #shell: "iptables -I INPUT 1 -p tcp --dport 2049 -j ACCEPT"
+
 
 - name: enable/start rpcbind
   service: name=rpcbind state=started enabled=yes
-  when: '{{nfs_installed.rc}} == 0'
+  when: nfs_installed.rc == 0
   become: yes
 
 - name: enable/start nfs-server
   service: name=nfs-server state=started enabled=yes
-  when: '{{nfs_installed.rc}} == 0'
+  when: nfs_installed.rc == 0
   become: yes
