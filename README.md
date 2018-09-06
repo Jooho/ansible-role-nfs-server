@@ -13,7 +13,7 @@ Role Variables
 | Name                      | Default value                         |        Requird       | Description                                                                 |
 |---------------------------|---------------------------------------|----------------------|-----------------------------------------------------------------------------|
 | nfs_mount_point           | /exports                              |         no           | Export directory where will be mounted                                      |
-| nfs_block_dev_name        | /dev/sdc                              |         no           | Block device name                                                           |
+| nfs_block_dev_name        | sdc                                   |         no           | Block device name                                                           |
 
 Dependencies
 ------------
@@ -30,7 +30,7 @@ Example Playbook
   gather_facts: false
 
   roles:
-    - { role: Jooho.nfs-server }
+    - { role: Jooho.nfs_server }
 ~~~
 
 Information

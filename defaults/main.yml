@@ -2,4 +2,4 @@
 # defaults file for ansible-role-nfs
 
 nfs_mount_point: /exports
-nfs_block_dev_name: /dev/sdc
+nfs_block_dev_name: sdc
