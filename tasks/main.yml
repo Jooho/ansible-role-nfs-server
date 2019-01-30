@@ -46,7 +46,7 @@
 - name: Exporting a nfs
   lineinfile:
     dest=/etc/exports
-    line="{{nfs_mount_point}} *(rw,root_squash)"
+    line="{{nfs_mount_point}} *(rw,no_root_squash)"
     state=present
     insertafter=EOF
     create=yes
@@ -60,32 +60,6 @@
   seboolean: name=virt_use_nfs state=yes persistent=yes
   when: hostvars[inventory_hostname]['ansible_selinux']['status'] != 'disabled'
   become: yes
-
-- name: create nfs mount point folder
-  file: path={{nfs_mount_point}} state=directory force=false
-  become: yes
-
-- name: create nfs_registry folder
-  file: path={{nfs_mount_point}}/registry state=directory force=false
-  become: yes
-
-- name: Exporting a nfs
-  lineinfile:
-    dest=/etc/exports
-    line="{{nfs_mount_point}} *(rw,all_squash)"
-    state=present
-    insertafter=EOF
-    create=yes
-  become: yes
-
-- name: change user/group nfsnobody:nfsnobody
-  file: path={{nfs_mount_point}} owner=nfsnobody group=nfsnobody mode=0777 recurse=yes
-  become: yes
-
-- name: set selinux virt_use_nfs to 1 
-  seboolean: name=virt_use_nfs state=yes persistent=yes
-  become: yes
-  when: hostvars[inventory_hostname]['ansible_selinux']['status'] != 'disabled'
 
 #iptables will be supported since 2.0
 - name: add iptable rule for nfs
